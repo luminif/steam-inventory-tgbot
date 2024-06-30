@@ -1,0 +1,15 @@
+app:
+  telegram-token: ${TELEGRAM_API_KEY}
+
+spring:
+  application:
+    name: steam
+  jackson:
+    time-zone: UTC
+
+server:
+  port: 8091
+
+steam:
+  base-url: https://www.steamwebapi.com/steam/api
+  api-key: ${STEAM_WEB_API_KEY}
