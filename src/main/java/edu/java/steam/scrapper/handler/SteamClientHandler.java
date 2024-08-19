@@ -33,22 +33,16 @@ public class SteamClientHandler {
             HashMap<SteamResponse, Integer> items = new HashMap<>();
 
             for (var item : response) {
-                SteamResponse current = new SteamResponse(
+                SteamResponse currentItem = new SteamResponse(
                     item.itemName(),
-                    (item.price() == null ? 0 : item.price()),
-                    (item.priceReal() == null ? 0 : item.priceReal())
+                    item.price() == null ? 0 : item.price(),
+                    item.priceReal() == null ? 0 : item.priceReal()
                 );
 
-                items.put(current, items.getOrDefault(current, 0) + 1);
+                items.put(currentItem, items.getOrDefault(currentItem, 0) + 1);
 
-                if (item.price() != null) {
-                    price += item.price();
-                }
-
-                if (item.priceReal() != null) {
-                    priceReal += item.priceReal();
-                }
-
+                price += currentItem.price();
+                priceReal += currentItem.priceReal();
                 countItems += 1;
             }
 

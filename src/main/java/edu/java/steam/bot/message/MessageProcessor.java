@@ -10,7 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 @Component
@@ -19,7 +20,7 @@ public class MessageProcessor implements UserMessageProcessor {
     private final List<Command> commands;
     private final SteamClientHandler clientHandler;
     private final Bot bot;
-    private final List<Update> updates = new ArrayList<>();
+    private final Deque<String> stack = new LinkedList<>();
     private static final int MAX_LENGTH = 4096;
 
     public MessageProcessor(
@@ -46,8 +47,8 @@ public class MessageProcessor implements UserMessageProcessor {
             String game = update.callbackQuery().data();
             bot.execute(new DeleteMessage(chatId, update.callbackQuery().message().messageId()));
 
-            long steamId = Long.parseLong(updates.getFirst().message().text().split("\\s+")[1]);
-            updates.remove(0);
+            long steamId = Long.parseLong(stack.pop().split("\\s+")[1]);
+            stack.clear();
             log.info(String.valueOf(steamId));
 
             String response = clientHandler.getResponse(steamId, game);
@@ -60,9 +61,10 @@ public class MessageProcessor implements UserMessageProcessor {
             } else {
                 return new SendMessage(chatId, response);
             }
-
         } else if (update.message() != null) {
-            updates.add(update);
+            stack.clear();
+            stack.push(update.message().text());
+
             chatId = update.message().chat().id();
 
             for (var command : commands) {
